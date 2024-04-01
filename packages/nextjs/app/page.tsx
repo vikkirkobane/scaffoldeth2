@@ -45,8 +45,7 @@ const Home: NextPage = () => {
     // TEST: Autocompleteion for contractName and functionName
     contractName: "YourContract",
     functionName: "userGreetingCounter",
-    // TODO: Fix assertion of `0x{string}`
-    args: [counterAddress as `0x${string}`],
+    args: [counterAddress],
     query: {
       enabled: false,
     },
