@@ -1,14 +1,4 @@
-/*
- * TODO: Need to find better way to handle `getProvider`
- * TODO: Burner Wallet does not show in Rainbow wallets
- * If we don't find any good solution might need to implement our provider
- * Good reference: https://github.com/safe-global/safe-apps-sdk/blob/main/packages/safe-apps-provider/src/provider.ts#L1
- * Using ethers `EIP1193ProviderBridge` to create a provider also does not work properly
- * @example:
- * ```ts
- * const provider = new EIP1193ProviderBridge(wallet, provider);
- * ```
- */
+import { WalletDetailsParams } from "@rainbow-me/rainbowkit";
 import { createConnector, normalizeChainId } from "@wagmi/core";
 import {
   EIP1193RequestFn,
@@ -48,7 +38,7 @@ export class ChainNotConfiguredError extends BaseError {
 
 type Provider = ReturnType<Transport<"custom", Record<any, any>, EIP1193RequestFn<WalletRpcSchema>>>;
 
-export const createBurnerConnector = () => {
+export const createBurnerConnector = (walletDetails: WalletDetailsParams) => {
   let connected = true;
   let connectedChainId: number;
   return createConnector<Provider>(config => ({
@@ -158,5 +148,6 @@ export const createBurnerConnector = () => {
       connected = false;
       return Promise.resolve();
     },
+    ...walletDetails,
   }));
 };
