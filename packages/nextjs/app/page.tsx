@@ -30,13 +30,13 @@ const Home: NextPage = () => {
 
   // ---- WRITE METHODS ----
   // TEST: Autocompleteion for contractName
-  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("YourContract");
+  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract();
 
   const { data: walletClient } = useWalletClient();
   const { data: YourContract } = useScaffoldContract({
     // TEST: Autocompleteion for contractName
     contractName: "YourContract",
-    // TEST: If you remove walletClient, this it should give TS error at line 86 that `write` is not defined property
+    // TEST: If you remove walletClient, this it should give TS error at line 115 that `write` is not defined property
     walletClient,
   });
 
@@ -86,7 +86,8 @@ const Home: NextPage = () => {
             onClick={async () => {
               try {
                 await writeYourContractAsync({
-                  // TEST: TS autocompletion and types for functioName, args and value
+                  // TEST: TS autocompletion and types for contractName, functioName, args and value
+                  contractName: "YourContract",
                   functionName: "setGreeting",
                   args: [newGreeting],
                   value: greetingValue ? parseEther(greetingValue) : undefined,
