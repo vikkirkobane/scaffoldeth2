@@ -1,8 +1,9 @@
+import { useEffect } from "react";
 import { useTargetNetwork } from "./useTargetNetwork";
-import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
+import { QueryObserverResult, RefetchOptions, useQueryClient } from "@tanstack/react-query";
 import type { ExtractAbiFunctionNames } from "abitype";
 import { ReadContractErrorType } from "viem";
-import { useReadContract } from "wagmi";
+import { useBlockNumber, useReadContract } from "wagmi";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 import {
   AbiFunctionReturnType,
@@ -30,20 +31,43 @@ export const useScaffoldReadContract = <
 }: UseScaffoldReadConfig<TContractName, TFunctionName>) => {
   const { data: deployedContract } = useDeployedContractInfo(contractName);
   const { targetNetwork } = useTargetNetwork();
+  const { query: queryOptions, watch, ...readContractConfig } = readConfig;
+  // set watch to true by default
+  const defaultWatch = watch ?? true;
 
-  return useReadContract({
+  const readContractHookRes = useReadContract({
     chainId: targetNetwork.id,
     functionName,
     address: deployedContract?.address,
     abi: deployedContract?.abi,
     watch: true,
     args,
-    enabled: !Array.isArray(args) || !args.some(arg => arg === undefined),
-    ...(readConfig as any),
+    ...(readContractConfig as any),
+    query: {
+      enabled: !Array.isArray(args) || !args.some(arg => arg === undefined),
+      ...queryOptions,
+    },
   }) as Omit<ReturnType<typeof useReadContract>, "data" | "refetch"> & {
     data: AbiFunctionReturnType<ContractAbi, TFunctionName> | undefined;
     refetch: (
       options?: RefetchOptions | undefined,
     ) => Promise<QueryObserverResult<AbiFunctionReturnType<ContractAbi, TFunctionName>, ReadContractErrorType>>;
   };
+
+  const queryClient = useQueryClient();
+  const { data: blockNumber } = useBlockNumber({
+    watch: defaultWatch,
+    chainId: targetNetwork.id,
+    query: {
+      enabled: defaultWatch,
+    },
+  });
+
+  useEffect(() => {
+    if (defaultWatch) {
+      queryClient.invalidateQueries({ queryKey: readContractHookRes.queryKey });
+    }
+  }, [blockNumber, queryClient, readContractHookRes.queryKey, defaultWatch]);
+
+  return readContractHookRes;
 };
