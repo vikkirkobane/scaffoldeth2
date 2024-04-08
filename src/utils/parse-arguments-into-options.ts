@@ -12,6 +12,9 @@ export function parseArgumentsIntoOptions(rawArgs: Args): RawOptions {
       "--skip": "--skip-install",
       "-s": "--skip-install",
 
+      "--solidity-framework": solidityFrameworkHandler,
+      "-f": "--solidity-framework",
+
       "--dev": Boolean,
     },
     {
@@ -21,16 +24,39 @@ export function parseArgumentsIntoOptions(rawArgs: Args): RawOptions {
 
   const install = args["--install"] ?? null;
   const skipInstall = args["--skip-install"] ?? null;
+
+  if (install && skipInstall) {
+    throw new Error(
+      'Please select only one of the options: "--install" or "--skip-install".'
+    );
+  }
+
   const hasInstallRelatedFlag = install || skipInstall;
 
   const dev = args["--dev"] ?? false; // info: use false avoid asking user
 
   const project = args._[0] ?? null;
 
+  const solidityFramework = args["--solidity-framework"] ?? null;
+
   return {
     project,
     install: hasInstallRelatedFlag ? install || !skipInstall : null,
     dev,
-    extensions: null, // TODO add extensions flags
+    solidityFramework,
   };
+}
+
+function solidityFrameworkHandler(value: string) {
+  const lowercasedValue = value.toLowerCase();
+  if (
+    lowercasedValue === "hardhat" ||
+    lowercasedValue === "foundry" ||
+    lowercasedValue === "none"
+  ) {
+    return lowercasedValue;
+  }
+
+  // choose from cli prompts
+  return null;
 }
