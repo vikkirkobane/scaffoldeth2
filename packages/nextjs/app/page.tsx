@@ -1,24 +1,21 @@
 "use client";
 
 import type { NextPage } from "next";
-import { sepolia } from "viem/chains";
-import { useAccount, useWatchContractEvent } from "wagmi";
+import { useAccount } from "wagmi";
 import { Address } from "~~/components/scaffold-eth";
-import externalContracts from "~~/contracts/externalContracts";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldWatchContractEvent, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
 
   const { writeContractAsync: writeYourContracAsync } = useScaffoldWriteContract("YourContract");
 
-  useWatchContractEvent({
-    ...externalContracts[sepolia.id].YourContract,
+  useScaffoldWatchContractEvent({
+    contractName: "YourContract",
     eventName: "GreetingChange",
-    onLogs: logs => {
+    onLogs(logs) {
       console.log("GreetingChange logs:", logs);
     },
-    chainId: sepolia.id,
   });
 
   const handleWrite = async () => {
