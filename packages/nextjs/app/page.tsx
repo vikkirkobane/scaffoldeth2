@@ -30,7 +30,7 @@ const Home: NextPage = () => {
 
   // ---- WRITE METHODS ----
   // TEST: Autocompleteion for contractName
-  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract();
+  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("YourContract");
 
   const { data: walletClient } = useWalletClient();
   const { data: YourContract } = useScaffoldContract({
@@ -86,8 +86,7 @@ const Home: NextPage = () => {
             onClick={async () => {
               try {
                 await writeYourContractAsync({
-                  // TEST: TS autocompletion and types for contractName, functioName, args and value
-                  contractName: "YourContract",
+                  // TEST: TS autocompletion and types for functioName, args and value
                   functionName: "setGreeting",
                   args: [newGreeting],
                   value: greetingValue ? parseEther(greetingValue) : undefined,
