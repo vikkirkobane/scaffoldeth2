@@ -3,7 +3,11 @@
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { Address } from "~~/components/scaffold-eth";
-import { useScaffoldWatchContractEvent, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import {
+  useScaffoldEventHistory,
+  useScaffoldWatchContractEvent,
+  useScaffoldWriteContract,
+} from "~~/hooks/scaffold-eth";
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
@@ -17,6 +21,15 @@ const Home: NextPage = () => {
       console.log("GreetingChange logs:", logs);
     },
   });
+
+  const { data: eventHistoryData } = useScaffoldEventHistory({
+    contractName: "YourContract",
+    eventName: "GreetingChange",
+    fromBlock: 0n,
+    watch: true,
+  });
+
+  console.log("eventHistoryData:", eventHistoryData);
 
   const handleWrite = async () => {
     try {
